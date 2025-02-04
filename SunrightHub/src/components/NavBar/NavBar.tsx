@@ -1,5 +1,5 @@
 // src/components/NavBar.tsx
-import "./styles/NavBar.css"; // Adjust the path if you're using a separate CSS file for NavBar
+import "./NavBar.css"; // Adjust the path if you're using a separate CSS file for NavBar
 
 function NavBar() {
   return (
