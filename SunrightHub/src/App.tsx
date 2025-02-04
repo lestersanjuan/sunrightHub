@@ -1,30 +1,11 @@
-import { useState } from "react";
-import ListGroup from "./components/ListGroup";
+import React from "react";
+import NavBar from "./components/NavBar";
+import "./app.css"; // Ensure your CSS file is imported
+
 function App() {
-  let items = ["NY", "SF", "TOKYO", "London", "meow"];
-
-  const [selectedIndex, setSelectedIndex] = useState(-1);
-
   return (
-    <div>
-      <h1>List</h1>
-      <ul className="list-group">
-        {items.map((item, index) => (
-          <li
-            className={
-              selectedIndex === index
-                ? "list-group-item active"
-                : "list-group-item"
-            }
-            key={item}
-            onClick={() => {
-              setSelectedIndex(index);
-            }}
-          >
-            {item}
-          </li>
-        ))}
-      </ul>
+    <div className="App">
+      <NavBar />
     </div>
   );
 }

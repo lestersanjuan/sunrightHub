@@ -1,0 +1,30 @@
+/* app.css */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #e9d842;
+    color: #fff;
+  }
+  
+  .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .navbar-nav {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .navbar-nav li {
+    margin: 0 1rem;
+  }
+  
+  .navbar-nav li a {
+    color: #000000;
+    text-decoration: none;
+  }
