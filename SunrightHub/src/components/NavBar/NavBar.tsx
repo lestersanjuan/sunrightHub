@@ -20,7 +20,7 @@ function NavBar() {
             <a href="#">Inventory</a>
           </li>
           <li>
-            <a href="#">Daily Report</a>
+            <a href="/DailyReport">Daily Report</a>
           </li>
         </ul>
       </nav>
