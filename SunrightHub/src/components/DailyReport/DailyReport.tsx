@@ -12,22 +12,42 @@ import {
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import "./DailyReport.css"; // Import your custom stylesheet
+import dayjs from "dayjs"; // Make sure to import dayjs
+import "./DailyReport.css"; // Your custom stylesheet
+
+// Define initial form values
+const initialFormValues = {
+  teaQuality: false,
+  bobaQuality: false,
+  weeklyLeadership: false,
+  shiftLeadsSoups: "",
+  generalNotes: "",
+  anyoneLate: "",
+  employeePerformance: "",
+  previousSupervisor: "",
+  previousShiftNotes: "",
+  customerComments: "",
+};
 
 function DailyReport() {
   const [selectedDate, setSelectedDate] = useState(null);
-  const [formValues, setFormValues] = useState({
-    teaQuality: false,
-    bobaQuality: false,
-    weeklyLeadership: false,
-    shiftLeadsSoups: "",
-    generalNotes: "",
-    anyoneLate: "",
-    employeePerformance: "",
-    previousSupervisor: "",
-    previousShiftNotes: "",
-    customerComments: "",
-  });
+  const [formValues, setFormValues] = useState(initialFormValues);
+  // Object to store reports keyed by date (e.g., "YYYY-MM-DD")
+  const [reports, setReports] = useState({});
+
+  const handleDateChange = (newValue) => {
+    setSelectedDate(newValue);
+    if (newValue) {
+      const dateKey = newValue.format("YYYY-MM-DD");
+      if (reports[dateKey]) {
+        setFormValues(reports[dateKey]);
+      } else {
+        setFormValues(initialFormValues);
+      }
+    } else {
+      setFormValues(initialFormValues);
+    }
+  };
 
   const handleCheckboxChange = (event) => {
     const { name, checked } = event.target;
@@ -46,8 +66,16 @@ function DailyReport() {
   };
 
   const saveValue = () => {
-    console.log("Form values:", formValues);
-    console.log("Selected date:", selectedDate);
+    if (!selectedDate) {
+      alert("Please select a date first");
+      return;
+    }
+    const dateKey = selectedDate.format("YYYY-MM-DD");
+    setReports((prevReports) => ({
+      ...prevReports,
+      [dateKey]: formValues,
+    }));
+    console.log("Saved report for", dateKey, formValues);
   };
 
   return (
@@ -68,7 +96,7 @@ function DailyReport() {
                 label="Select Date"
                 views={["year", "month", "day"]}
                 value={selectedDate}
-                onChange={(newValue) => setSelectedDate(newValue)}
+                onChange={handleDateChange}
                 renderInput={(params) => <TextField {...params} fullWidth />}
               />
             </LocalizationProvider>
