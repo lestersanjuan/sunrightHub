@@ -172,7 +172,7 @@ function DailyReport() {
           Employee Performance
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12}>
             <TextField
               name="anyoneLate"
               label="Anyone Late? ___Minutes"
@@ -182,12 +182,13 @@ function DailyReport() {
               onChange={handleTextChange}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12}>
             <TextField
               name="employeePerformance"
               label="Employee Performance"
               multiline
               fullWidth
+              rows={4}
               value={formValues.employeePerformance}
               onChange={handleTextChange}
             />
@@ -200,8 +201,8 @@ function DailyReport() {
         <Typography variant="h6" gutterBottom className="section-heading">
           Previous Shift Lead/Soup Comments
         </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
+        <Grid container spacing={1}>
+          <Grid item xs={12}>
             <TextField
               name="previousSupervisor"
               label="Refills Done? Previous Supervisor?"
@@ -211,12 +212,13 @@ function DailyReport() {
               onChange={handleTextChange}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid item xs={12}>
             <TextField
               name="previousShiftNotes"
               label="Previous Shift Notes"
               multiline
               fullWidth
+              rows={4}
               value={formValues.previousShiftNotes}
               onChange={handleTextChange}
             />
