@@ -11,13 +11,13 @@ function NavBar() {
       <nav>
         <ul className="navbar-nav">
           <li>
-            <a href="#">Home</a>
+            <a href="/Home">Home</a>
           </li>
           <li>
-            <a href="#">Schedule</a>
+            <a href="/Schedule">Schedule</a>
           </li>
           <li>
-            <a href="#">Inventory</a>
+            <a href="/Inventory">Inventory</a>
           </li>
           <li>
             <a href="/DailyReport">Daily Report</a>
