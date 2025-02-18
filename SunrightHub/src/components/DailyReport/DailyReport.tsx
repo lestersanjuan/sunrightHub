@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Box,
   Button,
   TextField,
   Checkbox,
@@ -12,11 +11,11 @@ import {
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from "dayjs"; // Make sure to import dayjs
-import "./DailyReport.css"; // Your custom stylesheet
+import dayjs from "dayjs";
+import "./DailyReport.css";
 
-// Define initial form values
-const initialFormValues = {
+// Define the default values for one report
+const initialReportValues = {
   teaQuality: false,
   bobaQuality: false,
   weeklyLeadership: false,
@@ -29,12 +28,32 @@ const initialFormValues = {
   customerComments: "",
 };
 
+// Define initial state with separate objects for day and night reports
+const initialFormValues = {
+  day: { ...initialReportValues },
+  night: { ...initialReportValues },
+};
+
 function DailyReport() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [formValues, setFormValues] = useState(initialFormValues);
-  // Object to store reports keyed by date (e.g., "YYYY-MM-DD")
+  // Store reports keyed by date (each date holds both day and night reports)
   const [reports, setReports] = useState({});
 
+  // Helper to auto-save to 'reports' whenever the user types or checks a box
+  const autoSave = (newFormValues) => {
+    // Only save if a date is selected
+    if (!selectedDate) return;
+
+    const dateKey = selectedDate.format("YYYY-MM-DD");
+    setReports((prevReports) => ({
+      ...prevReports,
+      [dateKey]: newFormValues,
+    }));
+    console.log("Auto-saved for", dateKey, newFormValues);
+  };
+
+  // Handle date change: load saved reports (if any) or reset the forms
   const handleDateChange = (newValue) => {
     setSelectedDate(newValue);
     if (newValue) {
@@ -49,40 +68,60 @@ function DailyReport() {
     }
   };
 
-  const handleCheckboxChange = (event) => {
+  // Update the appropriate shift’s checkbox value & auto-save
+  const handleCheckboxChange = (shift, event) => {
     const { name, checked } = event.target;
-    setFormValues((prev) => ({
-      ...prev,
-      [name]: checked,
-    }));
+    setFormValues((prev) => {
+      const updated = {
+        ...prev,
+        [shift]: {
+          ...prev[shift],
+          [name]: checked,
+        },
+      };
+      autoSave(updated);
+      return updated;
+    });
   };
 
-  const handleTextChange = (event) => {
+  // Update the appropriate shift’s text field value & auto-save
+  const handleTextChange = (shift, event) => {
     const { name, value } = event.target;
-    setFormValues((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const saveValue = () => {
-    if (!selectedDate) {
-      alert("Please select a date first");
-      return;
-    }
-    const dateKey = selectedDate.format("YYYY-MM-DD");
-    setReports((prevReports) => ({
-      ...prevReports,
-      [dateKey]: formValues,
-    }));
-    console.log("Saved report for", dateKey, formValues);
+    setFormValues((prev) => {
+      const updated = {
+        ...prev,
+        [shift]: {
+          ...prev[shift],
+          [name]: value,
+        },
+      };
+      autoSave(updated);
+      return updated;
+    });
   };
 
   return (
-    <>
+    <div>
+      {/* Date Picker (shared by both reports) */}
       <Paper className="daily-report">
         <Typography variant="h4" align="center" gutterBottom>
-          Daily Report
+          Daily Reports
+        </Typography>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            label="Select Date"
+            views={["year", "month", "day"]}
+            value={selectedDate}
+            onChange={handleDateChange}
+            renderInput={(params) => <TextField {...params} fullWidth />}
+          />
+        </LocalizationProvider>
+      </Paper>
+
+      {/* Day Report */}
+      <Paper className="daily-report">
+        <Typography variant="h4" align="center" gutterBottom>
+          Day Report
         </Typography>
 
         {/* Store Operations Section */}
@@ -90,24 +129,13 @@ function DailyReport() {
           <Typography variant="h6" gutterBottom className="section-heading">
             Store Operations
           </Typography>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Select Date"
-                  views={["year", "month", "day"]}
-                  value={selectedDate}
-                  onChange={handleDateChange}
-                  renderInput={(params) => <TextField {...params} fullWidth />}
-                />
-              </LocalizationProvider>
-            </Grid>
+          <Grid container spacing={2}>
             <Grid item xs={12}>
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={formValues.teaQuality}
-                    onChange={handleCheckboxChange}
+                    checked={formValues.day.teaQuality}
+                    onChange={(e) => handleCheckboxChange("day", e)}
                     name="teaQuality"
                   />
                 }
@@ -116,8 +144,8 @@ function DailyReport() {
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={formValues.bobaQuality}
-                    onChange={handleCheckboxChange}
+                    checked={formValues.day.bobaQuality}
+                    onChange={(e) => handleCheckboxChange("day", e)}
                     name="bobaQuality"
                   />
                 }
@@ -126,8 +154,8 @@ function DailyReport() {
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={formValues.weeklyLeadership}
-                    onChange={handleCheckboxChange}
+                    checked={formValues.day.weeklyLeadership}
+                    onChange={(e) => handleCheckboxChange("day", e)}
                     name="weeklyLeadership"
                   />
                 }
@@ -149,8 +177,8 @@ function DailyReport() {
                 label="Shift Leads/Soups"
                 multiline
                 fullWidth
-                value={formValues.shiftLeadsSoups}
-                onChange={handleTextChange}
+                value={formValues.day.shiftLeadsSoups}
+                onChange={(e) => handleTextChange("day", e)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -160,8 +188,8 @@ function DailyReport() {
                 multiline
                 rows={4}
                 fullWidth
-                value={formValues.generalNotes}
-                onChange={handleTextChange}
+                value={formValues.day.generalNotes}
+                onChange={(e) => handleTextChange("day", e)}
               />
             </Grid>
           </Grid>
@@ -179,8 +207,8 @@ function DailyReport() {
                 label="Anyone Late? ___Minutes"
                 multiline
                 fullWidth
-                value={formValues.anyoneLate}
-                onChange={handleTextChange}
+                value={formValues.day.anyoneLate}
+                onChange={(e) => handleTextChange("day", e)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -188,10 +216,10 @@ function DailyReport() {
                 name="employeePerformance"
                 label="Employee Performance"
                 multiline
-                fullWidth
                 rows={4}
-                value={formValues.employeePerformance}
-                onChange={handleTextChange}
+                fullWidth
+                value={formValues.day.employeePerformance}
+                onChange={(e) => handleTextChange("day", e)}
               />
             </Grid>
           </Grid>
@@ -209,8 +237,8 @@ function DailyReport() {
                 label="Refills Done? Previous Supervisor?"
                 multiline
                 fullWidth
-                value={formValues.previousSupervisor}
-                onChange={handleTextChange}
+                value={formValues.day.previousSupervisor}
+                onChange={(e) => handleTextChange("day", e)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -218,10 +246,10 @@ function DailyReport() {
                 name="previousShiftNotes"
                 label="Previous Shift Notes"
                 multiline
-                fullWidth
                 rows={4}
-                value={formValues.previousShiftNotes}
-                onChange={handleTextChange}
+                fullWidth
+                value={formValues.day.previousShiftNotes}
+                onChange={(e) => handleTextChange("day", e)}
               />
             </Grid>
           </Grid>
@@ -237,21 +265,16 @@ function DailyReport() {
             label="Comments and if was solved?"
             multiline
             fullWidth
-            value={formValues.customerComments}
-            onChange={handleTextChange}
+            value={formValues.day.customerComments}
+            onChange={(e) => handleTextChange("day", e)}
           />
         </div>
-
-        {/* Save Button */}
-        <div className="save-button-container">
-          <Button variant="contained" onClick={saveValue}>
-            Save
-          </Button>
-        </div>
       </Paper>
+
+      {/* Night Report */}
       <Paper className="daily-report">
         <Typography variant="h4" align="center" gutterBottom>
-          Daily Report
+          Night Report
         </Typography>
 
         {/* Store Operations Section */}
@@ -259,24 +282,13 @@ function DailyReport() {
           <Typography variant="h6" gutterBottom className="section-heading">
             Store Operations
           </Typography>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Select Date"
-                  views={["year", "month", "day"]}
-                  value={selectedDate}
-                  onChange={handleDateChange}
-                  renderInput={(params) => <TextField {...params} fullWidth />}
-                />
-              </LocalizationProvider>
-            </Grid>
+          <Grid container spacing={2}>
             <Grid item xs={12}>
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={formValues.teaQuality}
-                    onChange={handleCheckboxChange}
+                    checked={formValues.night.teaQuality}
+                    onChange={(e) => handleCheckboxChange("night", e)}
                     name="teaQuality"
                   />
                 }
@@ -285,8 +297,8 @@ function DailyReport() {
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={formValues.bobaQuality}
-                    onChange={handleCheckboxChange}
+                    checked={formValues.night.bobaQuality}
+                    onChange={(e) => handleCheckboxChange("night", e)}
                     name="bobaQuality"
                   />
                 }
@@ -295,8 +307,8 @@ function DailyReport() {
               <FormControlLabel
                 control={
                   <Checkbox
-                    checked={formValues.weeklyLeadership}
-                    onChange={handleCheckboxChange}
+                    checked={formValues.night.weeklyLeadership}
+                    onChange={(e) => handleCheckboxChange("night", e)}
                     name="weeklyLeadership"
                   />
                 }
@@ -318,8 +330,8 @@ function DailyReport() {
                 label="Shift Leads/Soups"
                 multiline
                 fullWidth
-                value={formValues.shiftLeadsSoups}
-                onChange={handleTextChange}
+                value={formValues.night.shiftLeadsSoups}
+                onChange={(e) => handleTextChange("night", e)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -329,8 +341,8 @@ function DailyReport() {
                 multiline
                 rows={4}
                 fullWidth
-                value={formValues.generalNotes}
-                onChange={handleTextChange}
+                value={formValues.night.generalNotes}
+                onChange={(e) => handleTextChange("night", e)}
               />
             </Grid>
           </Grid>
@@ -348,8 +360,8 @@ function DailyReport() {
                 label="Anyone Late? ___Minutes"
                 multiline
                 fullWidth
-                value={formValues.anyoneLate}
-                onChange={handleTextChange}
+                value={formValues.night.anyoneLate}
+                onChange={(e) => handleTextChange("night", e)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -357,10 +369,10 @@ function DailyReport() {
                 name="employeePerformance"
                 label="Employee Performance"
                 multiline
-                fullWidth
                 rows={4}
-                value={formValues.employeePerformance}
-                onChange={handleTextChange}
+                fullWidth
+                value={formValues.night.employeePerformance}
+                onChange={(e) => handleTextChange("night", e)}
               />
             </Grid>
           </Grid>
@@ -378,8 +390,8 @@ function DailyReport() {
                 label="Refills Done? Previous Supervisor?"
                 multiline
                 fullWidth
-                value={formValues.previousSupervisor}
-                onChange={handleTextChange}
+                value={formValues.night.previousSupervisor}
+                onChange={(e) => handleTextChange("night", e)}
               />
             </Grid>
             <Grid item xs={12}>
@@ -387,10 +399,10 @@ function DailyReport() {
                 name="previousShiftNotes"
                 label="Previous Shift Notes"
                 multiline
-                fullWidth
                 rows={4}
-                value={formValues.previousShiftNotes}
-                onChange={handleTextChange}
+                fullWidth
+                value={formValues.night.previousShiftNotes}
+                onChange={(e) => handleTextChange("night", e)}
               />
             </Grid>
           </Grid>
@@ -406,19 +418,12 @@ function DailyReport() {
             label="Comments and if was solved?"
             multiline
             fullWidth
-            value={formValues.customerComments}
-            onChange={handleTextChange}
+            value={formValues.night.customerComments}
+            onChange={(e) => handleTextChange("night", e)}
           />
         </div>
-
-        {/* Save Button */}
-        <div className="save-button-container">
-          <Button variant="contained" onClick={saveValue}>
-            Save
-          </Button>
-        </div>
       </Paper>
-    </>
+    </div>
   );
 }
 
