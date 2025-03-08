@@ -1,11 +1,15 @@
-// src/components/NavBar.tsx
-import "./NavBar.css"; // Adjust the path if you're using a separate CSS file for NavBar
+import { FaSun } from "react-icons/fa"; // Example icon from react-icons
+import "./NavBar.css"; // Adjust the path if needed
 
 function NavBar() {
   return (
     <header className="navbar">
-      {/* Left side: Brand name */}
-      <div className="navbar-brand">Sunright</div>
+      {/* Left side: Brand name with icon */}
+      <div className="navbar-brand">
+        <FaSun className="navbar-icon" />{" "}
+        {/* Replace with your preferred icon */}
+        Sunright
+      </div>
 
       {/* Right side: Navigation links */}
       <nav>
