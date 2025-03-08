@@ -1,19 +1,21 @@
-import { FaSun } from "react-icons/fa"; // Example icon from react-icons
-import "./NavBar.css"; // Adjust the path if needed
+import "./NavBar.css"; // Ensure the path is correct
 
 function NavBar() {
   return (
     <header className="navbar">
-      {/* Left side: Brand name with icon */}
+      {/* Left: Brand with Image Placeholder */}
       <div className="navbar-brand">
-        <FaSun className="navbar-icon" />{" "}
-        {/* Replace with your preferred icon */}
+        <img
+          src="../assets/react.svg"
+          alt="Brand Icon"
+          className="navbar-icon"
+        />
         Sunright
       </div>
 
-      {/* Right side: Navigation links */}
+      {/* Right: Navigation Links */}
       <nav>
-        <ul className="navbar-nav">
+        <ul className="navbar-items">
           <li>
             <a href="/Home">Home</a>
           </li>
