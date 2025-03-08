@@ -11,11 +11,25 @@ import {
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import "./DailyReport.css";
 
-// Define the default values for one report
-const initialReportValues = {
+// Define the structure of a report
+interface ReportValues {
+  teaQuality: boolean;
+  bobaQuality: boolean;
+  weeklyLeadership: boolean;
+  shiftLeadsSoups: string;
+  generalNotes: string;
+  anyoneLate: string;
+  employeePerformance: string;
+  previousSupervisor: string;
+  previousShiftNotes: string;
+  customerComments: string;
+}
+
+// Define the initial values for a single shift (Day/Night)
+const initialReportValues: ReportValues = {
   teaQuality: false,
   bobaQuality: false,
   weeklyLeadership: false,
@@ -28,23 +42,26 @@ const initialReportValues = {
   customerComments: "",
 };
 
-// Define initial state with separate objects for day and night reports
-const initialFormValues = {
+// Define the form state structure
+interface FormValues {
+  day: ReportValues;
+  night: ReportValues;
+}
+
+// Initialize the form state
+const initialFormValues: FormValues = {
   day: { ...initialReportValues },
   night: { ...initialReportValues },
 };
 
-function DailyReport() {
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [formValues, setFormValues] = useState(initialFormValues);
-  // Store reports keyed by date (each date holds both day and night reports)
-  const [reports, setReports] = useState({});
+const DailyReport: React.FC = () => {
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
+  const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
+  const [reports, setReports] = useState<{ [key: string]: FormValues }>({});
 
-  // Helper to auto-save to 'reports' whenever the user types or checks a box
-  const autoSave = (newFormValues) => {
-    // Only save if a date is selected
+  // Auto-save function when the user makes changes
+  const autoSave = (newFormValues: FormValues) => {
     if (!selectedDate) return;
-
     const dateKey = selectedDate.format("YYYY-MM-DD");
     setReports((prevReports) => ({
       ...prevReports,
@@ -53,47 +70,43 @@ function DailyReport() {
     console.log("Auto-saved for", dateKey, newFormValues);
   };
 
-  // Handle date change: load saved reports (if any) or reset the forms
-  const handleDateChange = (newValue) => {
+  // Handle date selection
+  const handleDateChange = (newValue: Dayjs | null) => {
     setSelectedDate(newValue);
     if (newValue) {
       const dateKey = newValue.format("YYYY-MM-DD");
-      if (reports[dateKey]) {
-        setFormValues(reports[dateKey]);
-      } else {
-        setFormValues(initialFormValues);
-      }
+      setFormValues(reports[dateKey] || initialFormValues);
     } else {
       setFormValues(initialFormValues);
     }
   };
 
-  // Update the appropriate shift’s checkbox value & auto-save
-  const handleCheckboxChange = (shift, event) => {
+  // Handle checkbox changes
+  const handleCheckboxChange = (
+    shift: "day" | "night",
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, checked } = event.target;
     setFormValues((prev) => {
       const updated = {
         ...prev,
-        [shift]: {
-          ...prev[shift],
-          [name]: checked,
-        },
+        [shift]: { ...prev[shift], [name]: checked },
       };
       autoSave(updated);
       return updated;
     });
   };
 
-  // Update the appropriate shift’s text field value & auto-save
-  const handleTextChange = (shift, event) => {
+  // Handle text field changes
+  const handleTextChange = (
+    shift: "day" | "night",
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = event.target;
     setFormValues((prev) => {
       const updated = {
         ...prev,
-        [shift]: {
-          ...prev[shift],
-          [name]: value,
-        },
+        [shift]: { ...prev[shift], [name]: value },
       };
       autoSave(updated);
       return updated;
@@ -101,330 +114,154 @@ function DailyReport() {
   };
 
   return (
-    <div>
-      {/* Date Picker (shared by both reports) */}
-      <Paper className="daily-report">
+    <div className="daily-report-container">
+      {/* Date Picker */}
+      <div className="date-picker-container">
         <Typography variant="h4" align="center" gutterBottom>
           Daily Reports
         </Typography>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
             label="Select Date"
-            views={["year", "month", "day"]}
             value={selectedDate}
             onChange={handleDateChange}
-            renderInput={(params) => <TextField {...params} fullWidth />}
           />
         </LocalizationProvider>
-      </Paper>
+      </div>
 
-      {/* Day Report */}
-      <Paper className="daily-report">
-        <Typography variant="h4" align="center" gutterBottom>
-          Day Report
-        </Typography>
-
-        {/* Store Operations Section */}
-        <div className="section">
-          <Typography variant="h6" gutterBottom className="section-heading">
-            Store Operations
+      {/* Report Containers */}
+      <div className="report-container">
+        {/* Day Report */}
+        <Paper className="daily-report">
+          <Typography variant="h5" align="center" gutterBottom>
+            Day Report
           </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValues.day.teaQuality}
-                    onChange={(e) => handleCheckboxChange("day", e)}
-                    name="teaQuality"
-                  />
-                }
-                label="Tea Quality Check"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValues.day.bobaQuality}
-                    onChange={(e) => handleCheckboxChange("day", e)}
-                    name="bobaQuality"
-                  />
-                }
-                label="Boba Quality Check"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValues.day.weeklyLeadership}
-                    onChange={(e) => handleCheckboxChange("day", e)}
-                    name="weeklyLeadership"
-                  />
-                }
-                label="Weekly Leadership notes communicated with team"
-              />
-            </Grid>
-          </Grid>
-        </div>
+          {renderReportSection("day")}
+        </Paper>
 
-        {/* General Notes Section */}
-        <div className="section">
-          <Typography variant="h6" gutterBottom className="section-heading">
-            General Notes
+        {/* Night Report */}
+        <Paper className="daily-report">
+          <Typography variant="h5" align="center" gutterBottom>
+            Night Report
           </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                name="shiftLeadsSoups"
-                label="Shift Leads/Soups"
-                multiline
-                fullWidth
-                value={formValues.day.shiftLeadsSoups}
-                onChange={(e) => handleTextChange("day", e)}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="generalNotes"
-                label="General Notes"
-                multiline
-                rows={4}
-                fullWidth
-                value={formValues.day.generalNotes}
-                onChange={(e) => handleTextChange("day", e)}
-              />
-            </Grid>
-          </Grid>
-        </div>
-
-        {/* Employee Performance Section */}
-        <div className="section">
-          <Typography variant="h6" gutterBottom className="section-heading">
-            Employee Performance
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                name="anyoneLate"
-                label="Anyone Late? ___Minutes"
-                multiline
-                fullWidth
-                value={formValues.day.anyoneLate}
-                onChange={(e) => handleTextChange("day", e)}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="employeePerformance"
-                label="Employee Performance"
-                multiline
-                rows={4}
-                fullWidth
-                value={formValues.day.employeePerformance}
-                onChange={(e) => handleTextChange("day", e)}
-              />
-            </Grid>
-          </Grid>
-        </div>
-
-        {/* Previous Shift Lead/Soup Comments Section */}
-        <div className="section">
-          <Typography variant="h6" gutterBottom className="section-heading">
-            Previous Shift Lead/Soup Comments
-          </Typography>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>
-              <TextField
-                name="previousSupervisor"
-                label="Refills Done? Previous Supervisor?"
-                multiline
-                fullWidth
-                value={formValues.day.previousSupervisor}
-                onChange={(e) => handleTextChange("day", e)}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="previousShiftNotes"
-                label="Previous Shift Notes"
-                multiline
-                rows={4}
-                fullWidth
-                value={formValues.day.previousShiftNotes}
-                onChange={(e) => handleTextChange("day", e)}
-              />
-            </Grid>
-          </Grid>
-        </div>
-
-        {/* Customer Comments Section */}
-        <div className="section">
-          <Typography variant="h6" gutterBottom className="section-heading">
-            Customer Comments
-          </Typography>
-          <TextField
-            name="customerComments"
-            label="Comments and if was solved?"
-            multiline
-            fullWidth
-            value={formValues.day.customerComments}
-            onChange={(e) => handleTextChange("day", e)}
-          />
-        </div>
-      </Paper>
-
-      {/* Night Report */}
-      <Paper className="daily-report">
-        <Typography variant="h4" align="center" gutterBottom>
-          Night Report
-        </Typography>
-
-        {/* Store Operations Section */}
-        <div className="section">
-          <Typography variant="h6" gutterBottom className="section-heading">
-            Store Operations
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValues.night.teaQuality}
-                    onChange={(e) => handleCheckboxChange("night", e)}
-                    name="teaQuality"
-                  />
-                }
-                label="Tea Quality Check"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValues.night.bobaQuality}
-                    onChange={(e) => handleCheckboxChange("night", e)}
-                    name="bobaQuality"
-                  />
-                }
-                label="Boba Quality Check"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formValues.night.weeklyLeadership}
-                    onChange={(e) => handleCheckboxChange("night", e)}
-                    name="weeklyLeadership"
-                  />
-                }
-                label="Weekly Leadership notes communicated with team"
-              />
-            </Grid>
-          </Grid>
-        </div>
-
-        {/* General Notes Section */}
-        <div className="section">
-          <Typography variant="h6" gutterBottom className="section-heading">
-            General Notes
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                name="shiftLeadsSoups"
-                label="Shift Leads/Soups"
-                multiline
-                fullWidth
-                value={formValues.night.shiftLeadsSoups}
-                onChange={(e) => handleTextChange("night", e)}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="generalNotes"
-                label="General Notes"
-                multiline
-                rows={4}
-                fullWidth
-                value={formValues.night.generalNotes}
-                onChange={(e) => handleTextChange("night", e)}
-              />
-            </Grid>
-          </Grid>
-        </div>
-
-        {/* Employee Performance Section */}
-        <div className="section">
-          <Typography variant="h6" gutterBottom className="section-heading">
-            Employee Performance
-          </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                name="anyoneLate"
-                label="Anyone Late? ___Minutes"
-                multiline
-                fullWidth
-                value={formValues.night.anyoneLate}
-                onChange={(e) => handleTextChange("night", e)}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="employeePerformance"
-                label="Employee Performance"
-                multiline
-                rows={4}
-                fullWidth
-                value={formValues.night.employeePerformance}
-                onChange={(e) => handleTextChange("night", e)}
-              />
-            </Grid>
-          </Grid>
-        </div>
-
-        {/* Previous Shift Lead/Soup Comments Section */}
-        <div className="section">
-          <Typography variant="h6" gutterBottom className="section-heading">
-            Previous Shift Lead/Soup Comments
-          </Typography>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>
-              <TextField
-                name="previousSupervisor"
-                label="Refills Done? Previous Supervisor?"
-                multiline
-                fullWidth
-                value={formValues.night.previousSupervisor}
-                onChange={(e) => handleTextChange("night", e)}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                name="previousShiftNotes"
-                label="Previous Shift Notes"
-                multiline
-                rows={4}
-                fullWidth
-                value={formValues.night.previousShiftNotes}
-                onChange={(e) => handleTextChange("night", e)}
-              />
-            </Grid>
-          </Grid>
-        </div>
-
-        {/* Customer Comments Section */}
-        <div className="section">
-          <Typography variant="h6" gutterBottom className="section-heading">
-            Customer Comments
-          </Typography>
-          <TextField
-            name="customerComments"
-            label="Comments and if was solved?"
-            multiline
-            fullWidth
-            value={formValues.night.customerComments}
-            onChange={(e) => handleTextChange("night", e)}
-          />
-        </div>
-      </Paper>
+          {renderReportSection("night")}
+        </Paper>
+      </div>
     </div>
   );
-}
+
+  // Render function to avoid repeating code
+  function renderReportSection(shift: "day" | "night") {
+    return (
+      <Grid container spacing={2}>
+        {/* Store Operations */}
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom className="section-heading">
+            Store Operations
+          </Typography>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formValues[shift].teaQuality}
+                onChange={(e) => handleCheckboxChange(shift, e)}
+                name="teaQuality"
+              />
+            }
+            label="Tea Quality Check"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formValues[shift].bobaQuality}
+                onChange={(e) => handleCheckboxChange(shift, e)}
+                name="bobaQuality"
+              />
+            }
+            label="Boba Quality Check"
+          />
+        </Grid>
+
+        {/* General Notes */}
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom className="section-heading">
+            General Notes
+          </Typography>
+          <TextField
+            name="generalNotes"
+            label="General Notes"
+            multiline
+            rows={3}
+            fullWidth
+            value={formValues[shift].generalNotes}
+            onChange={(e) => handleTextChange(shift, e)}
+          />
+        </Grid>
+
+        {/* Employee Performance */}
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom className="section-heading">
+            Employee Performance
+          </Typography>
+          <TextField
+            name="anyoneLate"
+            label="Anyone Late? ___ Minutes"
+            multiline
+            fullWidth
+            value={formValues[shift].anyoneLate}
+            onChange={(e) => handleTextChange(shift, e)}
+          />
+          <TextField
+            name="employeePerformance"
+            label="Employee Performance"
+            multiline
+            rows={3}
+            fullWidth
+            value={formValues[shift].employeePerformance}
+            onChange={(e) => handleTextChange(shift, e)}
+          />
+        </Grid>
+
+        {/* Previous Shift Notes */}
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom className="section-heading">
+            Previous Shift Lead/Soup Comments
+          </Typography>
+          <TextField
+            name="previousSupervisor"
+            label="Refills Done? Previous Supervisor?"
+            multiline
+            fullWidth
+            value={formValues[shift].previousSupervisor}
+            onChange={(e) => handleTextChange(shift, e)}
+          />
+          <TextField
+            name="previousShiftNotes"
+            label="Previous Shift Notes"
+            multiline
+            rows={3}
+            fullWidth
+            value={formValues[shift].previousShiftNotes}
+            onChange={(e) => handleTextChange(shift, e)}
+          />
+        </Grid>
+
+        {/* Customer Comments */}
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom className="section-heading">
+            Customer Comments
+          </Typography>
+          <TextField
+            name="customerComments"
+            label="Comments and how they were solved?"
+            multiline
+            fullWidth
+            value={formValues[shift].customerComments}
+            onChange={(e) => handleTextChange(shift, e)}
+          />
+        </Grid>
+      </Grid>
+    );
+  }
+};
 
 export default DailyReport;

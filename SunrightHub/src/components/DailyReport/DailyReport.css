@@ -1,23 +1,58 @@
+/* Main container */
+.daily-report-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+}
+
+/* Date picker section */
+.date-picker-container {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Reports container - Flexbox for side-by-side layout */
+.report-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem; /* Space between the two reports */
+  flex-wrap: wrap; /* Ensures responsiveness */
+}
+
+/* Individual report card */
 .daily-report {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
-    background-color: #ffffff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+  flex: 1;
+  max-width: 48%;
+  padding: 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+/* Section styling inside the report */
+.section {
+  margin-bottom: 2rem;
+}
+
+.section-heading {
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* Save button container */
+.save-button-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .report-container {
+    flex-direction: column;
   }
-  
-  .section {
-    margin-bottom: 2rem;
+
+  .daily-report {
+    max-width: 100%;
   }
-  
-  .section-heading {
-    margin-bottom: 1rem;
-    font-weight: 600;
-  }
-  
-  .save-button-container {
-    text-align: center;
-    margin-top: 2rem;
-  }
-  
+}
