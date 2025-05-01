@@ -22,6 +22,9 @@ function NavBar() {
           <li>
             <a href="/DailyReport">Daily Report</a>
           </li>
+          <li>
+            <a href="/Assessment">Asssessment</a>
+          </li>
         </ul>
       </nav>
     </header>
