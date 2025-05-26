@@ -6,8 +6,7 @@ import Report from './Report';
 
 function Daily() {
     return (
-        <div>
-            <div className='container'>
+            <div className='container' style={{marginRight:'0px', marginLeft:'0px'}}>
                 <div className='box' id='heading'>
                     <h1>Daily Report</h1>
                 </div>
@@ -28,8 +27,6 @@ function Daily() {
                     </div>
                 </div>
             </div>
-            
-        </div>
     );
 }
 
