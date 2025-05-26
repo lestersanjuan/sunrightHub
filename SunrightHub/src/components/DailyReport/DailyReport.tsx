@@ -29,7 +29,7 @@ const initialFormValues = {
   customerComments: "",
 };
 
-function DailyReport() {
+function DailyReport1() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [formValues, setFormValues] = useState(initialFormValues);
   // Object to store reports keyed by date (e.g., "YYYY-MM-DD")
@@ -251,4 +251,4 @@ function DailyReport() {
   );
 }
 
-export default DailyReport;
+export default DailyReport1;

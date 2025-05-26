@@ -5,6 +5,7 @@ import DailyReport from "./components/DailyReport/DailyReport";
 import Inventory from "./components/Inventory/Inventory";
 import Assessment from "./components/Assessment/Assessment";
 import Schedule from "./components/Schedule/Schedule";
+import Daily from "./components/DailyReport1/DailyReport1";
 function App() {
   return (
     <BrowserRouter>
@@ -15,6 +16,7 @@ function App() {
         <Route path="/Inventory" element={<Inventory />} />
         <Route path="/NavBar" element={<DailyReport />} />
         <Route path="/Assessment" element = {<Assessment />} />
+        <Route path="/Daily" element = {<Daily />} />
       </Routes>
     </BrowserRouter>
   );
