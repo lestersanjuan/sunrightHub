@@ -1,22 +1,19 @@
-
 import React from "react";
-
+import "./Report.css";
 function Report() {
-    return (
-        <div>
-            <h3>
-                Store Operations: 
-            </h3>
-            <label>
-                <input type="checkbox" name="storeOperations" />
-                Tea Quality
-                <input type="checkbox" name="storeOperations" />
-                Boba Quality
-                <input type="checkbox" name="storeOperations" />
-                Weekly Announcements spoke with Team
-            </label>
-        </div>
-    );
+  return (
+    <div>
+      <span>
+        <h3 className="inline">Store Operations:</h3>
+        <input type="checkbox" name="storeOperations" />
+        <label>Tea Quality</label>
+        <input type="checkbox" name="storeOperations" />
+        <label>Boba Quality</label>
+        <input type="checkbox" name="storeOperations" />
+        <label>Weekly Announcements spoke with Team</label>
+      </span>
+    </div>
+  );
 }
 
 export default Report;
