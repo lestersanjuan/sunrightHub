@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FormControlLabel, Checkbox } from "@mui/material";
 import "./Report.css";
 
@@ -13,14 +13,39 @@ function Report(props) {
     previousShiftNotes: "",
   });
   const [localStorage, setLocalStorage] = useState({});
-  console.log(props.date);
+  const [previousDate, setPreviousDate] = useState(props.date);
+
+  //Handles changes  on props or when the user changes the date
+  useEffect(() => {
+    if (props.date !== previousDate) {
+      const temp = props.date;
+      if (temp in localStorage) {
+        setFormValues(localStorage[temp]);
+      } else {
+        setFormValues({
+          shiftLeads: "",
+          generalNotes: "",
+          late: "",
+          employeePerformance: "",
+          refills: "",
+          customerComments: "",
+          previousShiftNotes: "",
+        });
+      }
+    }
+  }, [props]);
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = event.target;
+    console.log(value);
     setFormValues({
       ...formValues,
       [name]: value,
     });
+    setLocalStorage((prevLocalStorage) => ({
+      ...prevLocalStorage,
+      [props.date]: formValues,
+    }));
   };
 
   const handleSave = (event: React.MouseEvent<HTMLButtonElement>): void => {
@@ -29,8 +54,6 @@ function Report(props) {
       [props.date]: formValues,
     }));
   };
-
-  console.log(localStorage);
   return (
     <div>
       <span>
