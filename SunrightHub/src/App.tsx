@@ -6,6 +6,7 @@ import Inventory from "./components/Inventory/Inventory";
 import Assessment from "./components/Assessment/Assessment";
 import Schedule from "./components/Schedule/Schedule";
 import Daily from "./components/DailyReport1/DailyReport1";
+import "./App.css"
 function App() {
   return (
     <BrowserRouter>
